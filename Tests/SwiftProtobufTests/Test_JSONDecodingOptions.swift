@@ -157,4 +157,42 @@ class Test_JSONDecodingOptions: XCTestCase {
         }
     }
 
+    func testIgnoreUnknownFields_ignoresUnknownEnumValues() {
+        // (isValidJSON, jsonInput)
+        //   isValidJSON - if the input is otherwise valid protobuf JSON, and
+        //                 hence should parse when ignoring unknown fields.
+        //   jsonInput - The JSON string to parse.
+        let jsonInputs: [(Bool, String)] = [
+            (true, "{\"values1\":[1, 3]}"),
+        ]
+
+        var options = JSONDecodingOptions()
+        options.ignoreUnknownFields = true
+
+        for (i, (isValidJSON, jsonInput)) in jsonInputs.enumerated() {
+            // Default options (error on unknown fields)
+            do {
+                let _ = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput)
+                XCTFail("Input \(i): Should not have gotten here! Input: \(jsonInput)")
+            } catch JSONDecodingError.unrecognizedEnumValue {
+                XCTAssertTrue(true, "Input \(i): got an unknown enum value, input \(jsonInput).")
+            } catch let e {
+                XCTFail("Input \(i): Error \(e) decoding into an empty message \(jsonInput)")
+            }
+
+            // Ignoring unknown fields
+            do {
+                let _ = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput,
+                                                            options:options)
+                XCTAssertTrue(isValidJSON,
+                              "Input \(i): Should not have been able to parse: \(jsonInput)")
+            } catch JSONDecodingError.unrecognizedEnumValue {
+                XCTFail("Input \(i): should not have gotten unknown enum value, input \(jsonInput)")
+            } catch let e {
+                XCTAssertFalse(isValidJSON,
+                               "Input \(i): Error \(e): Should have been able to parse: \(jsonInput)")
+            }
+        }
+    }
+
 }

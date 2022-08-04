@@ -1324,6 +1324,8 @@ internal struct JSONScanner {
       if let i = Int(exactly: n) {
         if let e = E(rawValue: i) {
           return e
+        } else if options.ignoreUnknownFields {
+          return E(rawValue: 1)!
         } else {
           throw JSONDecodingError.unrecognizedEnumValue
         }
