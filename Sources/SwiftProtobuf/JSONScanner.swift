@@ -1300,7 +1300,7 @@ internal struct JSONScanner {
   /// Parse the next token as a string or numeric enum value.  Throws
   /// unrecognizedEnumValue if the string/number can't initialize the
   /// enum.  Will throw other errors if the JSON is malformed.
-  internal mutating func nextEnumValue<E: Enum>() throws -> E {
+  internal mutating func nextEnumValue<E: Enum>() throws -> E? {
     skipWhitespace()
     guard hasMoreContent else {
         throw JSONDecodingError.truncated
@@ -1325,7 +1325,7 @@ internal struct JSONScanner {
         if let e = E(rawValue: i) {
           return e
         } else if options.ignoreUnknownFields {
-          return E(rawValue: 1)!
+          return nil
         } else {
           throw JSONDecodingError.unrecognizedEnumValue
         }
