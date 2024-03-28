@@ -172,8 +172,10 @@ class Test_JSONDecodingOptions: XCTestCase {
         for (i, (isValidJSON, jsonInput)) in jsonInputs.enumerated() {
             // Default options (error on unknown fields)
             do {
-                let _ = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput)
-                XCTFail("Input \(i): Should not have gotten here! Input: \(jsonInput)")
+                let sut = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput)
+                XCTAssertTrue(false,
+                              "Input \(i): Should not have been able to parse: \(jsonInput) and produce \(sut)")
+                XCTFail("Input \(i): Should not have produced \(sut)! Input: \(jsonInput)")
             } catch JSONDecodingError.unrecognizedEnumValue {
                 XCTAssertTrue(true, "Input \(i): got an unknown enum value, input \(jsonInput).")
             } catch let e {
@@ -182,10 +184,11 @@ class Test_JSONDecodingOptions: XCTestCase {
 
             // Ignoring unknown fields
             do {
-                let _ = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput,
-                                                            options:options)
+                let sut = try ProtobufUnittest_SwiftEnumTest(jsonString: jsonInput,
+                                                             options:options)
+                print(sut)   
                 XCTAssertTrue(isValidJSON,
-                              "Input \(i): Should not have been able to parse: \(jsonInput)")
+                              "Input \(i): Should not have been able to parse: \(jsonInput) and produce \(sut)")
             } catch JSONDecodingError.unrecognizedEnumValue {
                 XCTFail("Input \(i): should not have gotten unknown enum value, input \(jsonInput)")
             } catch let e {
